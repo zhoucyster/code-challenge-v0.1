@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.io.IOException;
+
 @ControllerAdvice
 @ResponseStatus
 public class RestResponseEntityExceptionHandler
@@ -38,6 +40,12 @@ public class RestResponseEntityExceptionHandler
     @ExceptionHandler(InvalidDateException.class)
     public ResponseEntity<String> handleInvalidDateException(InvalidDateException e) {
         LOGGER.error("Unexpected error occurred: {}", e.getMessage());
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<String> handleIOException(IOException e) {
+        LOGGER.error("Unexpected error occurred: {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
