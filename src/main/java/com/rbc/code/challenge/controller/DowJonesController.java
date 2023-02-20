@@ -45,29 +45,26 @@ public class DowJonesController {
 
     @PostMapping("/upload-file")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file)
-            throws InvalidDateException {
+            throws InvalidDateException, IOException {
 
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("Please upload a CSV file");
         }
 
-        try (Reader reader = new InputStreamReader(file.getInputStream())) {
-            List<DowJonesRecordDTO> dtos = new CsvToBeanBuilder<DowJonesRecordDTO>(reader)
-                    .withType(DowJonesRecordDTO.class)
-                    .withIgnoreLeadingWhiteSpace(true)
-                    .withSeparator(',')
-                    .withSkipLines(1)
-                    .build()
-                    .parse();
-            for (DowJonesRecordDTO dto : dtos) {
-                dowJonesServiceImpl.addRecord(dto);
-            }
-
-            return ResponseEntity.ok("File uploaded successfully");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("Error uploading file");
+        Reader reader = new InputStreamReader(file.getInputStream());
+        List<DowJonesRecordDTO> dtos = new CsvToBeanBuilder<DowJonesRecordDTO>(reader)
+                .withType(DowJonesRecordDTO.class)
+                .withIgnoreLeadingWhiteSpace(true)
+                .withSeparator(',')
+                .withSkipLines(1)
+                .build()
+                .parse();
+        for (DowJonesRecordDTO dto : dtos) {
+            dowJonesServiceImpl.addRecord(dto);
         }
+
+        return ResponseEntity.ok("File uploaded successfully");
+
     }
 
     @GetMapping("/query")
