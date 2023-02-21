@@ -6,11 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.text.ParseException;
 
 
 @Data
@@ -21,36 +20,52 @@ public class DowJonesRecordDTO {
 
     @CsvBindByPosition(position = 0)
     private String quarter;
+
     @CsvBindByPosition(position = 1)
     private String stock;
+
     @CsvBindByPosition(position = 2)
     private String date;
+
     @CsvBindByPosition(position = 3)
-    private BigDecimal open;
+    private String open;
+
     @CsvBindByPosition(position = 4)
-    private BigDecimal high;
+    private String high;
+
     @CsvBindByPosition(position = 5)
-    private BigDecimal low;
+    private String low;
+
     @CsvBindByPosition(position = 6)
-    private BigDecimal close;
+    private String close;
+
     @CsvBindByPosition(position = 7)
-    private BigDecimal volume;
+    private String volume;
+
     @CsvBindByPosition(position = 8)
-    private BigDecimal percentChangePrice;
+    private String percentChangePrice;
+
     @CsvBindByPosition(position = 9)
-    private BigDecimal percentChangeVolumeOverLastWeek;
+    private String percentChangeVolumeOverLastWeek;
+
     @CsvBindByPosition(position = 10)
-    private BigDecimal previousWeeksVolume;
+    private String previousWeeksVolume;
+
     @CsvBindByPosition(position = 11)
-    private BigDecimal nextWeeksOpen;
+    private String nextWeeksOpen;
+
     @CsvBindByPosition(position = 12)
-    private BigDecimal nextWeeksClose;
+    private String nextWeeksClose;
+
     @CsvBindByPosition(position = 13)
-    private BigDecimal percentChangeNextWeeksPrice;
+    private String percentChangeNextWeeksPrice;
+
     @CsvBindByPosition(position = 14)
     private int daysToNextDividend;
+
     @CsvBindByPosition(position = 15)
-    private BigDecimal percentReturnNextDividend;
+    private String percentReturnNextDividend;
+
 
     public Date convertDateAsDate() {
         DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
