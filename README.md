@@ -23,3 +23,4 @@ Improvemnt area:
 2. Consider using flux to combat large query results.
 3. Caching is needed if performance downgrades when large payload occurs.
 4. To scale this service out, need to add more nodes and a load balancer.
+5. Write log to files instead of console.
