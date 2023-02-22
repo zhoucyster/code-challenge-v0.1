@@ -18,7 +18,7 @@ Note:
 For simplicity purpose, I used H2 in-memory database,
 but it can be easily changed to any relational database in the future by modifying db settings in application.yml
 
-Improvemnt area:
+Improvement area:
 1. Add Spring Security to only allow admin user to upload large file.
 2. Consider using flux to combat large query results.
 3. Caching is needed if performance downgrades when large payload occurs.
