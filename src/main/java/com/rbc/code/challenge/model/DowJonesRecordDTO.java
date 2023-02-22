@@ -11,7 +11,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -65,7 +64,6 @@ public class DowJonesRecordDTO {
 
     @CsvBindByPosition(position = 15)
     private String percentReturnNextDividend;
-
 
     public Date convertDateAsDate() {
         DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
