@@ -4,7 +4,8 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import com.rbc.code.challenge.error.InvalidDateException;
 import com.rbc.code.challenge.error.RecordNotFoundException;
 import com.rbc.code.challenge.model.DowJonesRecordDTO;
-import com.rbc.code.challenge.service.DowJonesServiceImpl;
+import com.rbc.code.challenge.service.DowJonesService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,28 +20,30 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @RestController
 @RequestMapping("/api/dowjones")
 public class DowJonesController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DowJonesController.class);
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     @Autowired
-    private DowJonesServiceImpl dowJonesServiceImpl;
+    private ReadWriteLock lock;
+
+    @Autowired
+    private DowJonesService dowJonesService;
 
     @PostMapping("/upload")
-    public ResponseEntity<Void> upload(@RequestBody List<@Valid DowJonesRecordDTO> dtos) {
+    public ResponseEntity<String> upload(@RequestBody List<@Valid DowJonesRecordDTO> dtos) {
         lock.writeLock().lock();
         try {
-            dowJonesServiceImpl.saveAll(dtos);
+            dowJonesService.saveAll(dtos);
             LOGGER.info("Uploaded {} records", dtos.size());
         } finally {
             lock.writeLock().unlock();
         }
-        return new ResponseEntity<>(HttpStatus.CREATED);
+
+        return new ResponseEntity<>("upload successfully, " + dtos.size() + " records were uploaded.", HttpStatus.CREATED);
     }
 
     @PostMapping("/upload-file")
@@ -51,20 +54,24 @@ public class DowJonesController {
             return ResponseEntity.badRequest().body("Please upload a CSV file");
         }
 
-        Reader reader = new InputStreamReader(file.getInputStream());
-        List<DowJonesRecordDTO> dtos = new CsvToBeanBuilder<DowJonesRecordDTO>(reader)
-                .withType(DowJonesRecordDTO.class)
-                .withIgnoreLeadingWhiteSpace(true)
-                .withSeparator(',')
-                .withSkipLines(1)
-                .build()
-                .parse();
-        for (DowJonesRecordDTO dto : dtos) {
-            dowJonesServiceImpl.addRecord(dto);
+        lock.writeLock().lock();
+        try {
+            Reader reader = new InputStreamReader(file.getInputStream());
+            List<DowJonesRecordDTO> dtos = new CsvToBeanBuilder<DowJonesRecordDTO>(reader)
+                    .withType(DowJonesRecordDTO.class)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .withSeparator(',')
+                    .withSkipLines(1)
+                    .build()
+                    .parse();
+            for (DowJonesRecordDTO dto : dtos) {
+                dowJonesService.addRecord(dto);
+            }
+            LOGGER.info("Uploaded {} records", dtos.size());
+            return ResponseEntity.ok("File uploaded successfully, " + dtos.size() + " records were uploaded.");
+        } finally {
+            lock.writeLock().unlock();
         }
-
-        return ResponseEntity.ok("File uploaded successfully");
-
     }
 
     @GetMapping("/query")
@@ -72,7 +79,7 @@ public class DowJonesController {
             throws RecordNotFoundException{
         lock.readLock().lock();
         try {
-            List<DowJonesRecordDTO> records = dowJonesServiceImpl.getByStock(stock);
+            List<DowJonesRecordDTO> records = dowJonesService.getByStock(stock);
             LOGGER.info("Queried for stock: {}, found {} records", stock, records.size());
             return new ResponseEntity<>(records, HttpStatus.OK);
         }
@@ -82,17 +89,16 @@ public class DowJonesController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<DowJonesRecordDTO> add(@RequestBody @Valid DowJonesRecordDTO dto)
+    public ResponseEntity<String> add(@RequestBody @Valid DowJonesRecordDTO dto)
             throws InvalidDateException {
         lock.writeLock().lock();
         try {
-            DowJonesRecordDTO savedRecord = dowJonesServiceImpl.addRecord(dto);
-            LOGGER.info("Added record: {}", savedRecord);
-            return new ResponseEntity<>(savedRecord, HttpStatus.CREATED);
+            dowJonesService.addRecord(dto);
+            LOGGER.info("Added record: {}", dto);
+            return new ResponseEntity<>("record was added successfully", HttpStatus.CREATED);
         } finally {
             lock.writeLock().unlock();
         }
     }
-
 }
 

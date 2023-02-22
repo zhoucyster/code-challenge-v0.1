@@ -1,6 +1,5 @@
 package com.rbc.code.challenge.service;
 
-import com.rbc.code.challenge.entity.DowJonesRecord;
 import com.rbc.code.challenge.error.InvalidDateException;
 import com.rbc.code.challenge.error.RecordNotFoundException;
 import com.rbc.code.challenge.model.DowJonesRecordDTO;
